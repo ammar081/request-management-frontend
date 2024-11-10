@@ -64,7 +64,7 @@ function App() {
       localStorage.removeItem("token");
 
       // Redirect to the login page after successful logout
-      window.location.href = "http://localhost:8080";
+      window.location.href = "https://request-managemnet-system.netlify.app";
     } catch (error) {
       console.error("Logout failed:", error);
     }
