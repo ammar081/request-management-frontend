@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import RequesterDashboard from "./pages/RequesterDashboard";
 import ApproverDashboard from "./pages/ApproverDashboard";
 import axios from "axios";
+import { jwtDecode } from "jwt-decode";
 
 // Custom hook to parse query parameters from the URL
 function useQuery() {
@@ -13,22 +14,32 @@ function useQuery() {
 
 function App() {
   const [user, setUser] = useState(() => {
-    const savedUser = localStorage.getItem("user");
-    return savedUser ? JSON.parse(savedUser) : null;
+    const savedToken = localStorage.getItem("token");
+    if (savedToken) {
+      try {
+        const decodedUser = jwtDecode(savedToken);
+        return decodedUser;
+      } catch (error) {
+        console.error("Error decoding token:", error);
+      }
+    }
+    return null;
   });
 
   const query = useQuery();
 
   useEffect(() => {
-    const userData = query.get("user");
-    if (userData) {
+    const token = query.get("token");
+
+    if (token) {
       try {
-        const parsedUser = JSON.parse(decodeURIComponent(userData));
-        setUser(parsedUser);
-        localStorage.setItem("user", JSON.stringify(parsedUser));
+        const decodedUser = jwtDecode(token);
+        setUser(decodedUser);
+        localStorage.setItem("user", JSON.stringify(decodedUser));
+        localStorage.setItem("token", token);
         window.history.replaceState({}, document.title, "/"); // Clear URL params
       } catch (error) {
-        console.error("Error parsing user data:", error);
+        console.error("Error decoding token:", error);
       }
     }
   }, [query]);
@@ -39,14 +50,18 @@ function App() {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.get("http://localhost:3005/auth/logout", {
+      const token = localStorage.getItem("token");
+      await axios.get("http://localhost:3005/auth/logout", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
         withCredentials: true,
       });
-      console.log(response.data.message); // Should log "Logged out successfully"
 
-      // Clear user data in the frontend after successful logout
+      // Clear user data and token
       setUser(null);
       localStorage.removeItem("user");
+      localStorage.removeItem("token");
 
       // Redirect to the login page after successful logout
       window.location.href = "http://localhost:8080";
@@ -55,12 +70,16 @@ function App() {
     }
   };
 
+  const getAuthHeaders = () => {
+    const token = localStorage.getItem("token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
+
   return (
     <>
       <Navbar user={user} onLogin={handleGoogleLogin} onLogout={handleLogout} />
       <div className="container mx-auto p-8">
         <Routes>
-          {/* Default route: redirects to dashboard if user data is available */}
           <Route
             path="/"
             element={
@@ -74,24 +93,25 @@ function App() {
             }
           />
 
-          {/* Requester Routes */}
           <Route
             path="/requester"
             element={
               user && user.role === "Requester" ? (
-                <RequesterDashboard user={user} />
+                <RequesterDashboard
+                  user={user}
+                  authHeaders={getAuthHeaders()}
+                />
               ) : (
                 <Navigate to="/" />
               )
             }
           />
 
-          {/* Approver Routes */}
           <Route
             path="/approver"
             element={
               user && user.role === "Approver" ? (
-                <ApproverDashboard />
+                <ApproverDashboard authHeaders={getAuthHeaders()} />
               ) : (
                 <Navigate to="/" />
               )

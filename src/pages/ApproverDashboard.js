@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
-const ApproverDashboard = () => {
+const ApproverDashboard = ({ authHeaders }) => {
   const [requests, setRequests] = useState([]);
-  const [loadingApprove, setLoadingApprove] = useState(null); // Loading state for Approve button
-  const [loadingReject, setLoadingReject] = useState(null); // Loading state for Reject button
+  const [loadingApprove, setLoadingApprove] = useState(null);
+  const [loadingReject, setLoadingReject] = useState(null);
 
   // Fetch pending requests on component mount
   useEffect(() => {
     const fetchPendingRequests = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3005/requests/pending-requests"
+          "http://localhost:3005/requests/pending-requests",
+          {
+            headers: authHeaders,
+          }
         );
         setRequests(response.data);
       } catch (error) {
@@ -20,22 +23,24 @@ const ApproverDashboard = () => {
     };
 
     fetchPendingRequests();
-  }, []);
+  }, [authHeaders]);
 
   // Handle approving a request
   const handleApprove = async (requestId) => {
     setLoadingApprove(requestId); // Set loading for Approve button
     try {
-      await axios.post("http://localhost:3005/requests/approve-request", {
-        requestId,
-      });
+      await axios.post(
+        "http://localhost:3005/requests/approve-request",
+        { requestId },
+        { headers: authHeaders }
+      );
       setRequests(requests.filter((request) => request._id !== requestId));
       alert("Request approved and notifications sent.");
     } catch (error) {
       console.error("Error approving request:", error);
       alert("Failed to approve request.");
     } finally {
-      setLoadingApprove(null); // Reset loading state for Approve button
+      setLoadingApprove(null);
     }
   };
 
@@ -43,9 +48,11 @@ const ApproverDashboard = () => {
   const handleReject = async (requestId) => {
     setLoadingReject(requestId); // Set loading for Reject button
     try {
-      await axios.post("http://localhost:3005/requests/reject-request", {
-        requestId,
-      });
+      await axios.post(
+        "http://localhost:3005/requests/reject-request",
+        { requestId },
+        { headers: authHeaders }
+      );
       setRequests(requests.filter((request) => request._id !== requestId));
       alert("Request rejected and notifications sent.");
     } catch (error) {
@@ -83,7 +90,7 @@ const ApproverDashboard = () => {
                 disabled={
                   loadingApprove === request._id ||
                   loadingReject === request._id
-                } // Disable if any button is loading
+                }
               >
                 {loadingApprove === request._id ? (
                   <div className="w-5 h-5 border-4 border-t-transparent border-white rounded-full animate-spin"></div>
@@ -97,7 +104,7 @@ const ApproverDashboard = () => {
                 disabled={
                   loadingApprove === request._id ||
                   loadingReject === request._id
-                } // Disable if any button is loading
+                }
               >
                 {loadingReject === request._id ? (
                   <div className="w-5 h-5 border-4 border-t-transparent border-white rounded-full animate-spin"></div>

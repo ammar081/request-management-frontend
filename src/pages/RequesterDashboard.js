@@ -2,22 +2,28 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import RequestForm from "../components/RequestForm";
 
-const RequesterDashboard = ({ user }) => {
+const RequesterDashboard = ({ user, authHeaders }) => {
   const [requests, setRequests] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
   const handleRequestSubmit = async (requestData) => {
     try {
-      // Include logged-in user's email in the request data
       const requestDataWithUserEmail = {
         ...requestData,
-        email: user.email, // Assuming `user` contains the logged-in user’s details
+        email: user.email,
       };
 
-      // POST request to backend to create new request
+      // Fetch the token from localStorage if authHeaders isn't defined
+      const token = localStorage.getItem("token");
+      const headers = token
+        ? { Authorization: `Bearer ${token}` }
+        : authHeaders;
+
+      // POST request to backend to create a new request with Authorization header
       const response = await axios.post(
         "http://localhost:3005/requests/create",
-        requestDataWithUserEmail
+        requestDataWithUserEmail,
+        { headers } // Pass the headers with token
       );
       console.log("Request created successfully:", response.data);
 
@@ -36,9 +42,12 @@ const RequesterDashboard = ({ user }) => {
         const response = await axios.get(
           "http://localhost:3005/requests/user-requests",
           {
+            headers: authHeaders,
             params: { email: user.email },
           }
         );
+        console.log("response: ", response.data);
+
         setRequests(response.data);
       } catch (error) {
         console.error("Error fetching user requests:", error);
@@ -46,10 +55,9 @@ const RequesterDashboard = ({ user }) => {
     };
 
     fetchUserRequests();
-  }, [user.email, showForm]);
+  }, [user.email, showForm, authHeaders]);
 
   const handleCreateRequest = () => {
-    // Toggle the form visibility on button click
     setShowForm(!showForm);
   };
 
@@ -83,7 +91,7 @@ const RequesterDashboard = ({ user }) => {
             <p>No requests found.</p>
           ) : (
             <ul className="space-y-4">
-              {requests.map((request) => (
+              {requests?.map((request) => (
                 <li key={request._id} className="border p-4 rounded shadow">
                   <p>
                     <strong>Title:</strong> {request.title}
@@ -101,15 +109,15 @@ const RequesterDashboard = ({ user }) => {
                     <strong>Status:</strong>{" "}
                     <span
                       className={`${
-                        request.status === "approved"
+                        request?.status === "approved"
                           ? "text-green-500"
                           : request.status === "rejected"
                           ? "text-red-500"
                           : "text-yellow-500"
                       }`}
                     >
-                      {request.status.charAt(0).toUpperCase() +
-                        request.status.slice(1)}
+                      {request?.status?.charAt(0).toUpperCase() +
+                        request?.status?.slice(1)}
                     </span>
                   </p>
                 </li>
@@ -123,41 +131,3 @@ const RequesterDashboard = ({ user }) => {
 };
 
 export default RequesterDashboard;
-
-// // src/pages/RequesterDashboard.js
-// import React from "react";
-// import axios from "axios";
-// import RequestForm from "../components/RequestForm";
-
-// const RequesterDashboard = ({ user }) => {
-// const handleRequestSubmit = async (requestData) => {
-//   try {
-//     // Include logged-in user's email in the request data
-//     const requestDataWithUserEmail = {
-//       ...requestData,
-//       email: user.email, // Assuming `user` contains the logged-in user’s details
-//     };
-
-//     // POST request to backend to create new request
-//     const response = await axios.post(
-//       "http://localhost:3005/requests/create",
-//       requestDataWithUserEmail
-//     );
-//     console.log("Request created successfully:", response.data);
-
-//     alert("Request submitted successfully!");
-//   } catch (error) {
-//     console.error("Error creating request:", error);
-//     alert("Failed to submit the request. Please try again.");
-//   }
-// };
-
-//   return (
-// <div className="container mx-auto p-8">
-//   <h1 className="text-3xl font-bold mb-6">Requester Dashboard</h1>
-//   <RequestForm onSubmit={handleRequestSubmit} />
-// </div>
-//   );
-// };
-
-// export default RequesterDashboard;
