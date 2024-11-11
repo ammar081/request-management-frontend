@@ -7,6 +7,8 @@ import ApproverDashboard from "./pages/ApproverDashboard";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
+const APP_URL = "https://request-managemnet-system.netlify.app/";
+
 // Custom hook to parse query parameters from the URL
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -45,13 +47,13 @@ function App() {
   }, [query]);
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:3005/auth/google"; // Redirect to Google OAuth
+    window.location.href = `${APP_URL}auth/google`; // Redirect to Google OAuth
   };
 
   const handleLogout = async () => {
     try {
       const token = localStorage.getItem("token");
-      await axios.get("http://localhost:3005/auth/logout", {
+      await axios.get(`${APP_URL}auth/logout`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

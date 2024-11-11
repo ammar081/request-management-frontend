@@ -6,12 +6,14 @@ const ApproverDashboard = ({ authHeaders }) => {
   const [loadingApprove, setLoadingApprove] = useState(null);
   const [loadingReject, setLoadingReject] = useState(null);
 
+  const APP_URL = "https://request-managemnet-system.netlify.app/";
+
   // Fetch pending requests on component mount
   useEffect(() => {
     const fetchPendingRequests = async () => {
       try {
         const response = await axios.get(
-          "http://localhost:3005/requests/pending-requests",
+          `${APP_URL}requests/pending-requests`,
           {
             headers: authHeaders,
           }
@@ -30,7 +32,7 @@ const ApproverDashboard = ({ authHeaders }) => {
     setLoadingApprove(requestId); // Set loading for Approve button
     try {
       await axios.post(
-        "http://localhost:3005/requests/approve-request",
+        `${APP_URL}requests/approve-request`,
         { requestId },
         { headers: authHeaders }
       );
@@ -49,7 +51,7 @@ const ApproverDashboard = ({ authHeaders }) => {
     setLoadingReject(requestId); // Set loading for Reject button
     try {
       await axios.post(
-        "http://localhost:3005/requests/reject-request",
+        `${APP_URL}requests/reject-request`,
         { requestId },
         { headers: authHeaders }
       );
