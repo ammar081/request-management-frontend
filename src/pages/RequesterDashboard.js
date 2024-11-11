@@ -21,7 +21,7 @@ const RequesterDashboard = ({ user, authHeaders }) => {
 
       // POST request to backend to create a new request with Authorization header
       const response = await axios.post(
-        "https://request-managemnet-system.netlify.app/requests/create",
+        "https://api-gateway-three-roan.vercel.app/requests/create",
         requestDataWithUserEmail,
         { headers } // Pass the headers with token
       );
@@ -40,7 +40,7 @@ const RequesterDashboard = ({ user, authHeaders }) => {
     const fetchUserRequests = async () => {
       try {
         const response = await axios.get(
-          "https://request-managemnet-system.netlify.app/requests/user-requests",
+          "https://api-gateway-three-roan.vercel.app/requests/user-requests",
           {
             headers: authHeaders,
             params: { email: user.email },

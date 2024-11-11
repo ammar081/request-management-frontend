@@ -3,7 +3,7 @@ import React from "react";
 const Login = () => {
   const handleGoogleLogin = () => {
     window.location.href =
-      "https://request-managemnet-system.netlify.app/auth/google"; // Redirect to Google OAuth
+      "https://api-gateway-three-roan.vercel.app/auth/google"; // Redirect to Google OAuth
   };
 
   return (

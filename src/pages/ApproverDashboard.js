@@ -6,7 +6,7 @@ const ApproverDashboard = ({ authHeaders }) => {
   const [loadingApprove, setLoadingApprove] = useState(null);
   const [loadingReject, setLoadingReject] = useState(null);
 
-  const APP_URL = "https://request-managemnet-system.netlify.app/";
+  const APP_URL = "https://api-gateway-three-roan.vercel.app/";
 
   // Fetch pending requests on component mount
   useEffect(() => {

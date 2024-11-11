@@ -7,7 +7,7 @@ import ApproverDashboard from "./pages/ApproverDashboard";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 
-const APP_URL = "https://request-managemnet-system.netlify.app/";
+const APP_URL = "https://api-gateway-three-roan.vercel.app/";
 
 // Custom hook to parse query parameters from the URL
 function useQuery() {
@@ -66,7 +66,7 @@ function App() {
       localStorage.removeItem("token");
 
       // Redirect to the login page after successful logout
-      window.location.href = "https://request-managemnet-system.netlify.app";
+      window.location.href = "https://api-gateway-three-roan.vercel.app";
     } catch (error) {
       console.error("Logout failed:", error);
     }
